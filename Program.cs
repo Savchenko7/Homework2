@@ -1,59 +1,112 @@
 using System;
 
-string userName = "";
-bool isNameSet = false;
-
-// Приветственное сообщение при старте программы
-Console.WriteLine("Добро пожаловать в бот! Доступные команды: /start, /help, /info, /exit");
-
-while (true)
+class Program
 {
-    Console.Write("Введите команду: ");
-    string inputCommand = Console.ReadLine().Trim(); // Убираем лишние пробелы
-
-    switch (inputCommand)
+    static void Main()
     {
-        case "/start":
-            if (!isNameSet)
+        string userName = "";
+        bool isNameSet = false;
+
+        // Приветственное сообщение при старте программы
+        Console.WriteLine("Добро пожаловать в бот! Доступные команды: /start, /help, /info, /exit");
+
+        while (true)
+        {
+            Console.Write("Введите команду: ");
+            string inputCommand = Console.ReadLine().Trim(); // Убираем лишние пробелы
+
+            if (inputCommand.StartsWith("/"))
             {
-                Console.Write("Введите ваше имя: ");
-                userName = Console.ReadLine().Trim();
-                isNameSet = true;
-                Console.WriteLine($"Привет, {userName}! Теперь вы можете использовать команды /help, /info и /echo.");
+                HandleCommand(inputCommand, ref userName, ref isNameSet);
             }
             else
             {
-                Console.WriteLine("Имя уже установлено ранее.");
+                Console.WriteLine("Команда должна начинаться с символа '/'. Повторите попытку.");
             }
-            break;
+        }
+    }
 
-        case "/help":
-            Console.WriteLine("Справка:\nИспользуйте команды:\n/start — начать работу\n/info — информация о программе\n/echo — повторить введённый текст\n/exit — выход из программы");
-            break;
+    private static void HandleCommand(string command, ref string userName, ref bool isNameSet)
+    {
+        var parts = command.Split(' ', 2); // Разделяем команду и её аргументы
+        string cmd = parts.Length > 0 ? parts[0].ToLower() : "";
+        string arg = parts.Length > 1 ? parts[1].Trim() : null;
 
-        case "/info":
-            Console.WriteLine("Версия программы: 1.0\nДата создания: июнь 2025");
-            break;
+        switch (cmd)
+        {
+            case "/start":
+                if (!isNameSet)
+                {
+                    Console.Write("Введите ваше имя: ");
+                    userName = Console.ReadLine().Trim();
+                    isNameSet = true;
+                    Console.WriteLine($"Привет, {userName}! Теперь вы можете использовать команды /help, /info и /echo.");
+                }
+                else
+                {
+                    Console.WriteLine($"{userName}, имя уже установлено ранее.");
+                }
+                break;
 
-        case "/echo":
-            if (isNameSet)
-            {
-                Console.Write("Введите текст для эха: ");
-                string echoText = Console.ReadLine().Trim();
-                Console.WriteLine(echoText);
-            }
-            else
-            {
-                Console.WriteLine("Сначала представьтесь командой /start.");
-            }
-            break;
+            case "/help":
+                if (isNameSet)
+                {
+                    Console.WriteLine($"{userName}, справочная информация:\nДоступные команды:\n/start — начало работы\n/help — получение справки\n/info — информация о боте\n/echo — отображение введённого текста\n/exit — завершение работы");
+                }
+                else
+                {
+                    Console.WriteLine("Сначала представьтесь командой /start.");
+                }
+                break;
 
-        case "/exit":
-            Console.WriteLine("Выход из программы. До свидания!");
-            return; // Завершаем выполнение программы
+            case "/info":
+                if (isNameSet)
+                {
+                    Console.WriteLine($"{userName}, версия программы: 1.0\nДата создания: июнь 2025");
+                }
+                else
+                {
+                    Console.WriteLine("Сначала представьтесь командой /start.");
+                }
+                break;
 
-        default:
-            Console.WriteLine("Неизвестная команда. Попробуйте снова.");
-            break;
+            case "/echo":
+                if (isNameSet && !string.IsNullOrEmpty(arg))
+                {
+                    Console.WriteLine($"{userName}, вы ввели: '{arg}'");
+                }
+                else if (!isNameSet)
+                {
+                    Console.WriteLine("Сначала представьтесь командой /start.");
+                }
+                else
+                {
+                    Console.WriteLine($"{userName}, введите текст после команды /echo.");
+                }
+                break;
+
+            case "/exit":
+                if (isNameSet)
+                {
+                    Console.WriteLine($"{userName}, выход из программы. До свидания!");
+                }
+                else
+                {
+                    Console.WriteLine("До свидания!");
+                }
+                Environment.Exit(0); // Завершение приложения
+                break;
+
+            default:
+                if (isNameSet)
+                {
+                    Console.WriteLine($"{userName}, неверная команда. Используйте доступные команды.");
+                }
+                else
+                {
+                    Console.WriteLine("Неверная команда. Сначала представьтесь командой /start.");
+                }
+                break;
+        }
     }
 }
